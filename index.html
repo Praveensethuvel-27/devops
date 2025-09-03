@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Repo / Workspace File List</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f1720; --card:#0b1220; --muted:#9aa4b2; --accent:#60a5fa;
+    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:linear-gradient(180deg,#071023,#08121a);color:#e6eef6;padding:28px;}
+    .container{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:8px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.04)}
+    th{color:var(--muted);font-weight:600;font-size:12px}
+    tr:hover td{background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent)}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--accent);cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .empty{padding:28px;text-align:center;color:var(--muted)}
+    pre{white-space:pre-wrap;word-break:break-word}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Workspace / GitHub repo — File list</h1>
+      <div class="controls">
+        <button id="reload" class="btn">Reload</button>
+        <button id="download" class="btn">Download list</button>
+      </div>
+    </header>
+
+    <div class="card" id="mainCard">
+      <div id="info" class="muted">Loading file list (fetching <code>files.txt</code>)...</div>
+      <div id="tableWrap"></div>
+    </div>
+
+    <section style="margin-top:14px" class="card">
+      <div class="muted">If <code>files.txt</code> is not available, use the textarea to paste your <code>dir</code> output and click "Render".</div>
+      <div style="margin-top:10px">
+        <textarea id="pasteArea" rows="6" style="width:100%;padding:10px;border-radius:8px;background:#071225;border:1px solid rgba(255,255,255,0.03);color:#d8e8ff;" placeholder="Paste `dir` output here (or leave blank)"></textarea>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="render" class="btn">Render</button>
+          <button id="clear" class="btn">Clear</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Parse a files.txt or dir output into rows
+    function parseDirText(text){
+      // Heuristics: Windows 'dir' full lines usually:  02/15/2025  03:21 PM    &lt;DIR&gt; FolderName
+      const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l && !/^(Volume in drive|Directory of|Total Files|File\(s\)|bytes)$/i.test(l));
+      const rows = [];
+      for(const line of lines){
+        // Try full-detail match: date time AM/PM size/name
+        const m = line.match(/^(\d{1,2}\/\d{1,2}\/\d{2,4})\s+(\d{1,2}:\d{2}\s+(?:AM|PM))\s+(.+)$
